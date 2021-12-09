@@ -1,5 +1,7 @@
 # Tor control port password encryption and decryption
 
+[![Coverage Status](https://coveralls.io/repos/github/tari-project/tor-hash-password/badge.svg?branch=main)](https://coveralls.io/github/tari-project/tor-hash-password?branch=main)
+
 Tor is controllable by making socket connections to the “ControlPort” usually on port 9051.
 
 `.torrc` requires a "HashedControlPassword" option to make use of password authentication. You can generate this

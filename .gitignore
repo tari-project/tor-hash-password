@@ -1,2 +1,6 @@
 /target
 Cargo.lock
+
+*.profraw
+coverage_report
+cov_raw
