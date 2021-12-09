@@ -101,9 +101,6 @@ impl EncryptedKey {
         let mut bytes = [0u8; 29];
         hex::decode_to_slice(&s.as_ref().as_bytes()[3..], &mut bytes)?;
 
-        println!("{:?}", &bytes[..8]);
-        println!("{:?}", &bytes[8]);
-        println!("{:?}", &bytes[9..]);
         // Indicator is always 0x60
         if bytes[8] != 0x60 {
             return Err(EncryptedKeyError::InvalidIndicator);
