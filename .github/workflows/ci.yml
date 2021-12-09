@@ -1,0 +1,93 @@
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+name: CI
+
+env:
+  CARGO_HTTP_MULTIPLEXING: false
+  toolchain: nightly-2021-11-01
+
+jobs:
+  clippy:
+    name: clippy
+    runs-on: ubuntu-18.04
+    steps:
+      - name: ubuntu dependencies
+        run: |
+          sudo apt-get update && \
+          sudo apt-get -y install \
+            libssl-dev \
+            openssl \
+            pkg-config \
+            git
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ env.toolchain }}
+          components: clippy, rustfmt
+          override: true
+      - name: Caching
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-${{ runner.cpu-model }}-${{ env.toolchain }}-${{ hashFiles('**/Cargo.lock') }}
+      - name: cargo fmt
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --all -- --check
+      - name: Clippy check
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: --all-targets -- -D warnings
+  test:
+    name: test
+    runs-on: ubuntu-18.04
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: Caching
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-${{ runner.cpu-model }}-${{ env.toolchain }}-${{ hashFiles('**/Cargo.lock') }}
+      - name: ubuntu dependencies
+        run: |
+          sudo apt-get update && \
+          sudo apt-get -y install \
+            libssl-dev \
+            openssl \
+            git \
+            cmake \
+            zip
+      - name: toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ env.toolchain }}
+          components: clippy, rustfmt
+          override: true
+
+      - name: cargo test
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          # args: --release
+
+      - name: cargo test release
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --release
