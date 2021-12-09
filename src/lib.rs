@@ -44,11 +44,12 @@
 //! ```edition2018
 //!# use std::convert::TryFrom;
 //!# use tor_hash_passwd::EncryptedKey;
-//! let key = EncryptedKey::try_from("16:85EE955FF128F01260A1CFA5C3BE947A512B8EFAD1BC410671E3DBBA2D").unwrap();
-//! assert!(key.validate("foo"));
+//! let key = EncryptedKey::try_from("16:29AAD7BADA64895D604EE18A5549712C9DADAF373B72D7DEF0D4AE97AE").unwrap();
+//! assert!(key.validate("tari"));
 //! ```
 
-
 mod encrypted_key;
+mod error;
 
 pub use encrypted_key::EncryptedKey;
+pub use error::EncryptedKeyError;
