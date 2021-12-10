@@ -1,8 +1,10 @@
 use crate::EncryptedKeyError;
 use rand::{thread_rng, RngCore};
 use sha1::Sha1;
-use std::convert::TryFrom;
-use std::fmt::{Display, Formatter};
+use std::{
+    convert::TryFrom,
+    fmt::{Display, Formatter},
+};
 
 pub const SALT_LENGTH: usize = 8;
 pub const HASH_LENGTH: usize = 20;
@@ -11,7 +13,6 @@ pub const DEFAULT_PREFIX: &str = "16";
 const EXPBIAS: u8 = 6;
 
 /// A representation of a Tor hashed pssword. See the [module docs](../lib) for more details and examples.
-///
 pub struct EncryptedKey {
     prefix: &'static str,
     salt: [u8; SALT_LENGTH],
@@ -65,7 +66,8 @@ impl EncryptedKey {
     // Implemented according to S2K algorithm in RFC 2440 (OpenPGP)
     fn hash_secret(salt: &[u8], secret: &str) -> [u8; 20] {
         let c = Self::indicator();
-        // Could be replaced by a const if indicator doesn't ever change, but leaving the door open for future changes there.
+        // Could be replaced by a const if indicator doesn't ever change, but leaving the door open for future changes
+        // there.
         let mut count = (16usize + (c & 15) as usize) << ((c >> 4) + EXPBIAS);
 
         let mut sha = Sha1::new();
@@ -185,51 +187,26 @@ mod test {
 
     #[test]
     fn from_string() {
-        let key =
-            EncryptedKey::try_from("16:85EE955FF128F01260A1CFA5C3BE947A512B8EFAD1BC410671E3DBBA2D")
-                .unwrap();
+        let key = EncryptedKey::try_from("16:85EE955FF128F01260A1CFA5C3BE947A512B8EFAD1BC410671E3DBBA2D").unwrap();
         assert_eq!(key.salt(), &hex!("85EE955FF128F012"));
-        assert_eq!(
-            key.hash(),
-            &hex!("A1CFA5C3BE947A512B8EFAD1BC410671E3DBBA2D")
-        );
+        assert_eq!(key.hash(), &hex!("A1CFA5C3BE947A512B8EFAD1BC410671E3DBBA2D"));
 
-        let key =
-            EncryptedKey::try_from("16:72FAE4A168BFD4B960381AF76E8204863A3A3C2FE96D48B4D6D92B9D16")
-                .unwrap();
+        let key = EncryptedKey::try_from("16:72FAE4A168BFD4B960381AF76E8204863A3A3C2FE96D48B4D6D92B9D16").unwrap();
         assert_eq!(key.salt(), &hex!("72FAE4A168BFD4B9"));
-        assert_eq!(
-            key.hash(),
-            &hex!("381AF76E8204863A3A3C2FE96D48B4D6D92B9D16")
-        );
+        assert_eq!(key.hash(), &hex!("381AF76E8204863A3A3C2FE96D48B4D6D92B9D16"));
     }
 
     #[test]
     fn convert_errors() {
         // Invalid start
-        assert!(EncryptedKey::try_from(
-            "15:85EE955FF128F01260A1CFA5C3BE947A512B8EFAD1BC410671E3DBBA2D"
-        )
-        .is_err());
+        assert!(EncryptedKey::try_from("15:85EE955FF128F01260A1CFA5C3BE947A512B8EFAD1BC410671E3DBBA2D").is_err());
         // Wrong length
-        assert!(EncryptedKey::try_from(
-            "16:85EE955FF128F01260A1CFA5C3BE947A512B8EFAD1BC410671E3DBBA2"
-        )
-        .is_err());
-        assert!(EncryptedKey::try_from(
-            "16:85EE955FF128F01260A1CFA5C3BE947A512B8EFAD1BC410671E3DBBA2D0"
-        )
-        .is_err());
+        assert!(EncryptedKey::try_from("16:85EE955FF128F01260A1CFA5C3BE947A512B8EFAD1BC410671E3DBBA2").is_err());
+        assert!(EncryptedKey::try_from("16:85EE955FF128F01260A1CFA5C3BE947A512B8EFAD1BC410671E3DBBA2D0").is_err());
         // Wrong indicator
-        assert!(EncryptedKey::try_from(
-            "16:85EE955FF128F01261A1CFA5C3BE947A512B8EFAD1BC410671E3DBBA2D"
-        )
-        .is_err());
+        assert!(EncryptedKey::try_from("16:85EE955FF128F01261A1CFA5C3BE947A512B8EFAD1BC410671E3DBBA2D").is_err());
         // Ok
-        assert!(EncryptedKey::try_from(
-            "16:85EE955FF128F01260A1CFA5C3BE947A512B8EFAD1BC410671E3DBBA2D"
-        )
-        .is_ok());
+        assert!(EncryptedKey::try_from("16:85EE955FF128F01260A1CFA5C3BE947A512B8EFAD1BC410671E3DBBA2D").is_ok());
     }
 
     #[test]

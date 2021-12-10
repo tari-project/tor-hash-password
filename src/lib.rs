@@ -6,8 +6,8 @@
 //! value by running `tor --hash-password <secret>` on the command line. This module gives you that same functionality
 //! as a standalone Rust library.
 //!
-//! The salted hash is computed according to the S2K algorithm in RFC 2440 (OpenPGP), and prefixed with the s2k specifier.
-//! This is then encoded in hexadecimal, prefixed by the indicator sequence   "16:".
+//! The salted hash is computed according to the S2K algorithm in RFC 2440 (OpenPGP), and prefixed with the s2k
+//! specifier. This is then encoded in hexadecimal, prefixed by the indicator sequence   "16:".
 //!
 //! Thus, for example, the password 'foo' could encode to:
 //! ```text
@@ -18,32 +18,34 @@
 //!
 //! ## Example use
 //!
-//!To generate a Tor password, use `hash_password`. You can verify challenges against the hash with `verify`:
+//! To generate a Tor password, use `hash_password`. You can verify challenges against the hash with `verify`:
 //! ```edition2018
-//!use tor_hash_passwd::EncryptedKey;
+//! use tor_hash_passwd::EncryptedKey;
 //!
 //! let hash = EncryptedKey::hash_password("ride the wild Pony");
-//!assert!(hash.validate("ride the wild Pony"));
-//!assert!(!hash.validate("some other password"));
-//!
+//! assert!(hash.validate("ride the wild Pony"));
+//! assert!(!hash.validate("some other password"));
 //! ```
 //!
 //! The algorithm uses a random salt, so generating the same hashed password multiple times will deliver different
 //! hashes. To get reproducible hashes, you must supply the salt:
 //!
-//!```edition2018
-//!use tor_hash_passwd::EncryptedKey;
-//!use hex_literal::hex;
+//! ```edition2018
+//! use hex_literal::hex;
+//! use tor_hash_passwd::EncryptedKey;
 //!
 //! let key = EncryptedKey::hash_with_salt("foo", hex!("85EE955FF128F012"));
-//! assert_eq!(key.to_string().as_str(), "16:85EE955FF128F01260A1CFA5C3BE947A512B8EFAD1BC410671E3DBBA2D");
+//! assert_eq!(
+//!     key.to_string().as_str(),
+//!     "16:85EE955FF128F01260A1CFA5C3BE947A512B8EFAD1BC410671E3DBBA2D"
+//! );
 //! ```
 //!
 //! You can also convert a string to an Encrypted Key:
 //!
 //! ```edition2018
-//!# use std::convert::TryFrom;
-//!# use tor_hash_passwd::EncryptedKey;
+//! # use std::convert::TryFrom;
+//! # use tor_hash_passwd::EncryptedKey;
 //! let key = EncryptedKey::try_from("16:29AAD7BADA64895D604EE18A5549712C9DADAF373B72D7DEF0D4AE97AE").unwrap();
 //! assert!(key.validate("tari"));
 //! ```
